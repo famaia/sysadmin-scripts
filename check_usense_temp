@@ -1,0 +1,46 @@
+#! /bin/bash
+
+USENSE="/usr/local/bin/usense"
+CRITICAL_TEMP=28
+
+if [ "$1" = "-d" ]; then
+        echo "usense USB temperature fetcher for Nagios 2017.01.14-01"
+		echo ""
+		echo "Supported Hardware : USB HID v1.10 Keyboard [ PCsensor Temper] on usb-0000:00:1a.0-1.6"
+        echo "Author             : Francisco Maia <famaia@gmail.com>"
+        echo ""
+fi
+
+VALUE=-100
+VALUE_INT=-100
+RES=1
+TRY=1
+
+while (( $RES != 0 && $VALUE_INT <= 0 ))
+do
+        USB_DEV=`$USENSE`
+        VALUE=`$USENSE $USB_DEV reading`
+        VALUE_INT=`awk "BEGIN { printf \"%4.0f\", $VALUE * 1000 }"`
+
+        MENOR=`echo "$VALUE < 0" | bc`
+        MAIOR=`echo "$VALUE > 100" | bc`
+        RES=`echo "$MAIOR + $MENOR" | bc`
+
+        if [ "$1" = "-d" ]; then
+                echo "TRY=$TRY, Maior: $MAIOR, Menor: $MENOR, VALUE=$VALUE, VALUE_INT=${VALUE_INT}, RES=$RES"
+                echo "Value read: $VALUE deg"
+        fi
+        TRY=`awk "BEGIN { printf \"%d\", ($TRY + 1) }"`
+
+done
+
+if (( $(bc <<< "$VALUE > $CRITICAL_TEMP") ))
+then
+echo "CRITICAL - Temperature is $VALUE (above $CRITICAL_TEMP)"
+exit 2
+else
+echo "OK - Temperature is $VALUE (below $CRITICAL_TEMP)"
+exit 0
+fi
+)
+echo "$VALUE" > /var/www/html/usense/temp_reading_1.txt
