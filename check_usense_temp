@@ -4,7 +4,7 @@ USENSE="/usr/local/bin/usense"
 CRITICAL_TEMP=28
 
 if [ "$1" = "-d" ]; then
-        echo "usense USB temperature fetcher for Nagios 2017.01.14-01"
+        echo "usense USB temperature fetcher for Nagios 2017.01.14-02"
 		echo ""
 		echo "Supported Hardware : USB HID v1.10 Keyboard [ PCsensor Temper] on usb-0000:00:1a.0-1.6"
         echo "Author             : Francisco Maia <famaia@gmail.com>"
@@ -36,10 +36,10 @@ done
 
 if (( $(bc <<< "$VALUE > $CRITICAL_TEMP") ))
 then
-echo "CRITICAL - Temperature is $VALUE (above $CRITICAL_TEMP)"
+echo "CRITICAL - Temperature is $VALUE (above $CRITICAL_TEMP)|temperature=$VALUE;$CRITICAL_TEMP"
 exit 2
 else
-echo "OK - Temperature is $VALUE (below $CRITICAL_TEMP)"
+echo "OK - Temperature is $VALUE (below $CRITICAL_TEMP)|temperature=$VALUE;$CRITICAL_TEMP"
 exit 0
 fi
 )
