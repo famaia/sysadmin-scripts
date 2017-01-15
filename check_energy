@@ -1,0 +1,19 @@
+
+#! /bin/bash
+
+CRITICAL_ENERGY=4
+
+VALUE=`cat /var/log/mewago/counter1.txt`
+rm -f /var/log/mewago/counter1.txt
+
+power_kw=$(bc <<< "scale=2;$VALUE * 60 / 1000")
+
+if (( $(bc <<< "$power_kw > $CRITICAL_ENERGY") ))
+then
+echo "CRITICAL - Energy Power is $power_kw (above $CRITICAL_ENERGY)|power_kw=$power_kw;$CRITICAL_ENERGY"
+exit 2
+else
+echo "OK - Energy Power is $power_kw (below $CRITICAL_ENERGY)|power_kw=$power_kw;$CRITICAL_ENERGY"
+exit 0
+fi
+)
